@@ -11,9 +11,11 @@ defmodule DeepThought.DeepL.API do
   @auth_key Application.get_env(:deep_thought, :deepl)[:auth_key]
 
   plug Tesla.Middleware.BaseUrl, "https://api.deepl.com/v2"
+
   plug Tesla.Middleware.Headers, [
     {"Authorization", "DeepL-Auth-Key #{@auth_key}"}
   ]
+
   plug Tesla.Middleware.EncodeFormUrlencoded
   plug Tesla.Middleware.DecodeJson
   plug Tesla.Middleware.Logger

@@ -49,7 +49,10 @@ defmodule DeepThought.Slack.User do
   @spec find_by_user_ids([String.t()]) :: Ecto.Query.t()
   def find_by_user_ids(user_ids),
     do:
-      from(u in User, where: u.user_id in ^user_ids and u.updated_at >= ^half_day_ago(), select: u)
+      from(u in User,
+        where: u.user_id in ^user_ids and u.updated_at >= ^half_day_ago(),
+        select: u
+      )
 
   @doc """
   Changeset for upserting users based on data obtained from Slack API.
