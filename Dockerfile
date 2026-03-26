@@ -1,4 +1,4 @@
-FROM elixir:1.14-alpine AS build
+FROM elixir:1.16-alpine AS build
 
 # Env
 ENV MIX_ENV=prod
@@ -22,7 +22,7 @@ RUN mix assets.deploy
 RUN mix do compile, release
 
 # Prepare release image
-FROM alpine:3.16.3 AS app
+FROM alpine:3.19 AS app
 
 ARG MIX_ENV=prod
 RUN apk add --no-cache libstdc++ openssl ncurses-libs
