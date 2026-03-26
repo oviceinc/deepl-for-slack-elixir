@@ -22,7 +22,7 @@ defmodule DeepThoughtWeb do
       use Phoenix.Controller, namespace: DeepThoughtWeb
 
       import Plug.Conn
-      import DeepThoughtWeb.Gettext
+      use Gettext, backend: DeepThoughtWeb.Gettext
       alias DeepThoughtWeb.Router.Helpers, as: Routes
     end
   end
@@ -80,7 +80,7 @@ defmodule DeepThoughtWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import DeepThoughtWeb.Gettext
+      use Gettext, backend: DeepThoughtWeb.Gettext
     end
   end
 
@@ -96,7 +96,7 @@ defmodule DeepThoughtWeb do
       import Phoenix.View
 
       import DeepThoughtWeb.ErrorHelpers
-      import DeepThoughtWeb.Gettext
+      use Gettext, backend: DeepThoughtWeb.Gettext
       alias DeepThoughtWeb.Router.Helpers, as: Routes
     end
   end
