@@ -6,31 +6,14 @@ defmodule DeepThought.DeepL.API do
   does not work with a free auth key.
   """
 
-  use Tesla
-
-  @auth_key Application.compile_env(:deep_thought, :deepl, [])[:auth_key]
-
-  plug Tesla.Middleware.BaseUrl, "https://api.deepl.com/v2"
-
-  plug Tesla.Middleware.Headers, [
-    {"Authorization", "DeepL-Auth-Key #{@auth_key}"}
-  ]
-
-  plug Tesla.Middleware.EncodeFormUrlencoded
-  plug Tesla.Middleware.DecodeJson
-  plug Tesla.Middleware.Logger
-  plug Tesla.Middleware.Timeout, timeout: 10_000
-
   @doc """
-  Invoke DeepL’s translation API, converting `text` into a translation in `target_language`.
+  Invoke DeepL's translation API, converting `text` into a translation in `target_language`.
   """
   @spec translate(String.t(), String.t()) :: {:ok, String.t()} | {:error, String.t()}
   def translate(text, target_language) do
-    {:ok, response} = post("/translate", translate_request_body(text, target_language))
-
-    case response.status() do
-      200 ->
-        {:ok, Enum.at(response.body()["translations"], 0)["text"]}
+    case client() |> Tesla.post("/translate", translate_request_body(text, target_language)) do
+      {:ok, %{status: 200, body: body}} ->
+        {:ok, Enum.at(body["translations"], 0)["text"]}
 
       _ ->
         {:error, "Failed to translate due to an unexpected response from translation server"}
@@ -45,5 +28,24 @@ defmodule DeepThought.DeepL.API do
       "tag_handling" => "xml",
       "ignore_tags" => "c,d,e,l,u"
     }
+  end
+
+  defp client do
+    config = module_config()
+
+    middleware = [
+      {Tesla.Middleware.BaseUrl, config[:endpoint] || "https://api.deepl.com/v2"},
+      {Tesla.Middleware.Headers, [{"Authorization", "DeepL-Auth-Key #{config[:auth_key]}"}]},
+      Tesla.Middleware.EncodeFormUrlencoded,
+      Tesla.Middleware.DecodeJson,
+      Tesla.Middleware.Logger,
+      {Tesla.Middleware.Timeout, timeout: 10_000}
+    ]
+
+    Tesla.client(middleware, config[:adapter])
+  end
+
+  defp module_config do
+    Enum.into(Application.get_env(:deep_thought, :deepl, []), %{})
   end
 end
